@@ -13,6 +13,8 @@ from aiogram.filters import Text
 from aiogram.types import FSInputFile, URLInputFile, BufferedInputFile
 from key import *
 from dp_qwest import COUNT
+import aioschedule
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 CONT = COUNT + 1
 TOKEN = "6196860612:AAEkhfus9mLqL_j2Ome-tepgK1jGXAUgOLY"
@@ -29,7 +31,6 @@ con_1 = sqlite3.connect("qwest.db")
 cursor_1 = con_1.cursor()
 
 
-
 @router.message(Command("start"))
 async def cmd_start(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(
@@ -39,9 +40,8 @@ async def cmd_start(message: types.Message):
     await message.answer("Сыграем?", reply_markup=keyboard)
 
 
-
-#@router.message(Command("restart"))
-#async def cmd_start(message: types.Message):
+# @router.message(Command("restart"))
+# async def cmd_start(message: types.Message):
 #    await message.reply("Прогресс обнулён!", reply_markup=types.ReplyKeyboardRemove())
 #
 #    id_user = int(message.from_user.id)
@@ -233,7 +233,6 @@ async def fals_ans(message: types.Message):
     last_list_user[id_user] = list_user[id_user]
     del list_user[id_user]
 
-
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=kb_4,
         resize_keyboard=True,
@@ -258,6 +257,16 @@ async def true_ans(message: types.Message):
     await message.answer("Играем дальше?", reply_markup=keyboard)
 
 
+
+
+async def send_message(bot: Bot):
+    cursor_2.execute("SELECT * FROM users")
+    users = cursor_2.fetchall()
+    for item in users:
+        id_ = item[1]
+        await bot.send_message(chat_id=id_, text='кекаешь?')
+
+
 async def main():
     global dp
     # Dispatcher is a root router
@@ -267,6 +276,15 @@ async def main():
 
     bot = Bot(TOKEN, parse_mode="HTML")
     # And the run events dispatching
+
+    '''
+    отправка сообщений по таймеру
+    '''
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(send_message, trigger='interval', seconds=20, kwargs={'bot': bot})
+    scheduler.start()
+
+
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 
