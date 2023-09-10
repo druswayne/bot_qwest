@@ -12,7 +12,8 @@ try:
                    info_image TEXT,
                    answer TEXT,
                    true INTEGER,
-                   false INTEGER)
+                   false INTEGER,
+                   total INTEGER)
                """)
 except:
     pass
@@ -20,12 +21,17 @@ except:
 folder_path = 'data/image'
 file_names = os.listdir(folder_path)
 COUNT = len(file_names) // 3
-print(COUNT)
+#print(file_names)
+
+
 def lol():
-    for i in range(0, len(file_names), 3):
-        file_qwest = file_names[i]
-        file_info = file_names[i + 1]
-        file_answer = file_names[i + 2]
+    for i in range(1, COUNT+1):
+        file_qwest = f'{i}.JPG'
+        file_info = f'{i}_.JPG'
+        if f'{i}_t.JPG' in file_names:
+            file_answer =f'{i}_t.JPG'
+        else:
+            file_answer = f'{i}_f.JPG'
         answer = file_answer[-5]
         if answer == 'f':
             answer = 'False'
@@ -36,3 +42,5 @@ def lol():
             "INSERT INTO qwest (image_qwest, image_answer, info_image, answer,true, false) VALUES (?,?,?,?,?,?)",
             data)
         con.commit()
+
+#lol()
